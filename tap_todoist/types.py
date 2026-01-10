@@ -1,15 +1,9 @@
-import sys
-from typing import Any, Callable, Mapping
+"""Types for the tap-todoist package."""
 
-import requests
+from __future__ import annotations
 
-if sys.version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    from typing_extensions import TypeAlias
+from collections.abc import Mapping
+from typing import Any
 
-
-ConfigDict: TypeAlias = Mapping[str, Any]
-StateDict: TypeAlias = Mapping[str, Any]
-
-RequestsAuth: TypeAlias = Callable[[requests.PreparedRequest], requests.PreparedRequest]
+type ConfigDict = Mapping[str, Any]
+type StateDict = Mapping[str, Any]

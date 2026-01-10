@@ -1,8 +1,12 @@
-from singer_sdk._singerlib import Schema
+"""Catalog for the tap-todoist package."""
+
 from singer_sdk import typing as th
+from singer_sdk.singerlib import Schema
 
 
 class PropertiesList(th.PropertiesList):
+    """Custom PropertiesList class for the tap-todoist package."""
+
     def to_schema(self) -> Schema:
         """Return a Schema object for this property list."""
         return Schema.from_dict(self.to_dict())
@@ -143,7 +147,7 @@ SCHEMAS = {
         th.Property(
             "reactions",
             th.ObjectType(
-                additional_properties=th.ArrayType(th.ArrayType(th.StringType))
+                additional_properties=th.ArrayType(th.ArrayType(th.StringType)),
             ),
             description="List of emoji reactions and corresponding user IDs.",
         ),

@@ -1,5 +1,9 @@
+# Cache
+tap_todoist_cache.sqlite
+
 # Meltano
 .meltano
+singer.jsonl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

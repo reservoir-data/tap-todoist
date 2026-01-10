@@ -1,38 +1,34 @@
+"""Base class for HTTP connectors."""
+
 from __future__ import annotations
 
-from functools import lru_cache
-from typing import Callable, Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, Any
 
 import requests
-from singer_sdk._singerlib import Catalog, CatalogEntry
+from singer_sdk.singerlib import Catalog, CatalogEntry
 
-from tap_todoist.types import ConfigDict, StateDict
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
+    from singer_sdk.helpers.types import Auth
+
+    from tap_todoist.types import ConfigDict, StateDict
 
 
 class HTTPConnector:
     """Base class for HTTP connectors."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the HTTPConnector class."""
-        self.config = None
+        self.config: ConfigDict | None = None
         self.catalog = Catalog()
-
-    @property
-    @lru_cache(maxsize=None)
-    def requests_session(self) -> requests.Session:
-        """Get the (cached) requests session for the connector.
-
-        Returns:
-            The requests session for the connector.
-        """
-        session = requests.Session()
-        return session
+        self.requests_session = requests.Session()
 
     def get_headers(
         self,
-        config: ConfigDict,
-        catalog: Catalog,
-        state: StateDict,
+        config: ConfigDict,  # noqa: ARG002
+        catalog: Catalog,  # noqa: ARG002
+        state: StateDict,  # noqa: ARG002
     ) -> Mapping[str, str]:
         """Get the headers for all requests.
 
@@ -43,15 +39,16 @@ class HTTPConnector:
 
         Returns:
             The headers for all requests.
+
         """
         return {}
 
     def get_query_params(
         self,
-        config: ConfigDict,
-        catalog: Catalog,
-        state: StateDict,
-    ) -> Mapping[str, str, Sequence[str]]:
+        config: ConfigDict,  # noqa: ARG002
+        catalog: Catalog,  # noqa: ARG002
+        state: StateDict,  # noqa: ARG002
+    ) -> Mapping[str, Any]:
         """Get the query parameters for all requests.
 
         Args:
@@ -61,15 +58,16 @@ class HTTPConnector:
 
         Returns:
             The query parameters for all requests.
+
         """
         return {}
 
     def get_data(
         self,
-        config: ConfigDict,
-        catalog: Catalog,
-        state: StateDict,
-    ) -> Mapping[str, str]:
+        config: ConfigDict,  # noqa: ARG002
+        catalog: Catalog,  # noqa: ARG002
+        state: StateDict,  # noqa: ARG002
+    ) -> Mapping[str, Any]:
         """Get the data for all requests.
 
         Args:
@@ -79,15 +77,16 @@ class HTTPConnector:
 
         Returns:
             The data for all requests.
+
         """
         return {}
 
     def get_auth(
         self,
-        config: ConfigDict,
-        catalog: Catalog,
-        state: StateDict,
-    ) -> Callable[[], requests.PreparedRequest]:
+        config: ConfigDict,  # noqa: ARG002
+        catalog: Catalog | None,  # noqa: ARG002
+        state: StateDict | None,  # noqa: ARG002
+    ) -> Auth | None:
         """Get the authentication callable for all requests.
 
         Args:
@@ -97,15 +96,16 @@ class HTTPConnector:
 
         Returns:
             The authentication callable for all requests.
+
         """
         return None
 
     def prepare_session(
         self,
-        config=ConfigDict,
-        catalog=Catalog,
-        state=StateDict,
-    ):
+        config: ConfigDict,
+        catalog: Catalog,
+        state: StateDict | None,
+    ) -> None:
         """Prepare the requests session for the connector.
 
         Args:
@@ -115,10 +115,11 @@ class HTTPConnector:
 
         Returns:
             The requests session for the connector.
+
         """
         self.requests_session.auth = self.get_auth(config, catalog, state)
 
-    def send_request(self, method, url, **kwargs) -> requests.Response:
+    def send_request(self, method: str, url: str, **kwargs: Any) -> requests.Response:
         """Send a request to the API.
 
         Args:
@@ -128,6 +129,7 @@ class HTTPConnector:
 
         Returns:
             The response from the API.
+
         """
         session = self.requests_session
 
@@ -145,10 +147,11 @@ class HTTPConnector:
 
         Returns:
             The catalog entries for the connector.
+
         """
         raise NotImplementedError
 
-    def discover(self, config: ConfigDict) -> Catalog:
+    def discover(self) -> Catalog:
         """Discover the catalog for the connector.
 
         Args:
@@ -156,6 +159,7 @@ class HTTPConnector:
 
         Returns:
             The catalog for the connector.
+
         """
         for entry in self.discover_catalog_entries():
             entry.metadata.root.selected = True
@@ -164,8 +168,8 @@ class HTTPConnector:
 
     def prepare(
         self,
-        config: ConfigDict | None = None,
-        catalog: Catalog | None = None,
+        config: ConfigDict,
+        catalog: Catalog,
         state: StateDict | None = None,
     ) -> None:
         """Prepare the connector for use.
@@ -174,5 +178,6 @@ class HTTPConnector:
             config: The configuration for the connector.
             catalog: The catalog for the connector.
             state: The state for the connector.
+
         """
         self.prepare_session(config, catalog, state)
