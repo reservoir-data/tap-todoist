@@ -1,22 +1,28 @@
 [project]
 name = "tap-todoist"
-version = "0.1.0"
+dynamic = ["version"]
 description = ""
 authors = [{ name = "Edgar Ramírez Mondragón", email = "edgarrm358@gmail.com" }]
 requires-python = ">=3.12"
 readme = "README.md"
 license = "Apache-2.0"
 dependencies = [
-    "requests~=2.33.0",
-    "singer-sdk~=0.53.5",
-    "requests-cache~=1.2.1",
+    "requests~=2.34.0",
+    "singer-sdk~=0.54.5",
+    "requests-cache~=1.3.2",
 ]
 
 [project.scripts]
 tap-todoist = "tap_todoist.tap:TapTodoist.cli"
 
 [dependency-groups]
-dev = ["types-requests>=2.32"]
+dev = [
+    "mypy>=2.1.0",
+    "ty>=0.0.55",
+]
+
+[tool.pyproject-fmt]
+table_format = "long"
 
 [tool.hatch.build.targets.sdist]
 include = ["tap_todoist"]
@@ -24,12 +30,13 @@ include = ["tap_todoist"]
 [tool.hatch.build.targets.wheel]
 include = ["tap_todoist"]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.hatch.version]
+fallback-version = "0.0.0.dev0"
+source = "vcs"
 
-[tool.ruff]
-target-version = "py312"
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [tool.ruff.lint]
 select = ["ALL"]

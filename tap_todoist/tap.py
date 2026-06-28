@@ -12,7 +12,7 @@ import requests_cache
 from singer_sdk import Stream, Tap
 from singer_sdk import typing as th
 from singer_sdk.singerlib import Catalog, CatalogEntry, MetadataMapping
-from singer_sdk.streams.core import REPLICATION_LOG_BASED
+from singer_sdk.singerlib.catalog import REPLICATION_LOG_BASED
 
 from tap_todoist.base_connector import HTTPConnector
 from tap_todoist.catalog import SCHEMAS
@@ -131,7 +131,7 @@ class TodoistClient(HTTPConnector):
 
         response = self.send_request(
             "POST",
-            "https://api.todoist.com/sync/v9/sync",
+            "https://api.todoist.com/api/v1/sync",
             data=self.get_data(config, catalog, state),
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
@@ -217,50 +217,20 @@ class TapTodoist(Tap):
         ),
     ).to_dict()
 
-    def __init__(
-        self,
-        *,
-        config: dict,
-        catalog: Catalog,
-        state: dict,
-        parse_env_config: bool = True,
-        validate_config: bool = True,
-    ) -> None:
-        """Initialize the TapTodoist class.
-
-        Args:
-            config: The configuration for the connector.
-            catalog: The catalog for the connector.
-            state: The state for the connector.
-            parse_env_config: Whether to parse environment variables for the
-                configuration.
-            validate_config: Whether to validate the configuration.
-
-        """
+    def __init__(self, **kwargs: Any) -> None:
+        """Initialize the TapTodoist class."""
         self.client = TodoistClient()
-        super().__init__(
-            config=config,
-            catalog=catalog,
-            state=state,
-            parse_env_config=parse_env_config,
-            validate_config=validate_config,
-        )
-
+        super().__init__(**kwargs)
         self.client.config = self.config
 
-    @override
     @property
+    @override
     def _singer_catalog(self) -> Catalog:
         return self.client.discover()
 
     @override
     def discover_streams(self) -> list[Stream]:
-        """Discover the streams for the connector.
-
-        Returns:
-            The streams for the connector.
-
-        """
+        """Discover the streams for the connector."""
         return [
             SyncStream(
                 self,
@@ -271,7 +241,7 @@ class TapTodoist(Tap):
             for entry in self.catalog_dict["streams"]
         ]
 
-    @override  # type: ignore[misc]  # ty:ignore[unused-ignore-comment]
+    @override  # type: ignore[misc]
     def sync_all(self) -> None:  # ty: ignore[override-of-final-method]
         """Sync all streams."""
         self.client.discover()
